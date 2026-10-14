@@ -1,0 +1,9 @@
+{
+  "name": "Pomes de la Sarga · Stock",
+  "short_name": "Pomes Stock",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f6f1",
+  "theme_color": "#2f6840",
+  "description": "Control compartido de stock, mercados y tienda"
+}
