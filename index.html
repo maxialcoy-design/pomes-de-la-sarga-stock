@@ -63,7 +63,22 @@
     <div class="panel"><h3>Jornadas pendientes de cierre</h3><p class="muted">Introduce las cajas que vuelven. Las vendidas se calculan automáticamente.</p><div id="openMarketsList"><p class="muted">Cargando…</p></div></div>
     <div class="panel"><h3>Historial de mercados</h3><div id="marketHistoryList"><p class="muted">Cargando…</p></div></div>
   </section>
-  <section id="storesView" class="view"><div class="sectionTitle">Tienda</div><div class="panel"><h3>Jornadas de tienda</h3><p>Miércoles · Viernes · Domingo</p><div class="notice">Estamos preparando el registro por variedad y la confirmación para descontar ventas de la cámara. Esta sección aún no modifica el stock.</div></div></section>
+  <section id="storesView" class="view">
+    <div class="sectionTitle">Tienda</div>
+    <div class="panel">
+      <h3>Registrar ventas de tienda</h3>
+      <p class="muted">Días habituales: miércoles, viernes y domingo. Guarda las ventas por variedad durante la jornada. <strong>Guardar no descuenta stock</strong>; solo se descontará al confirmar el cierre.</p>
+      <form id="storeForm">
+        <label for="storeDate">Fecha de la jornada</label><input id="storeDate" type="date" required>
+        <h4>Cajas vendidas por variedad</h4>
+        <div id="storeSalesRows" class="marketGrid"></div>
+        <button class="btn primary" style="width:100%;margin-top:12px" type="submit">Guardar ventas sin descontar stock</button>
+      </form>
+      <div id="storeMessage" aria-live="polite"></div>
+    </div>
+    <div class="panel"><h3>Jornadas pendientes de cierre</h3><p class="muted">Puedes editar las ventas guardadas. Al cerrar, se comprobará que hay stock suficiente y se descontarán las cajas.</p><div id="openStoresList"><p class="muted">Cargando…</p></div></div>
+    <div class="panel"><h3>Historial de tienda</h3><div id="storeHistoryList"><p class="muted">Cargando…</p></div></div>
+  </section>
   <section id="historyView" class="view"><div class="sectionTitle">Historial compartido</div><div class="panel"><div class="rowBetween"><strong>Últimos movimientos</strong><button id="refreshHistory" class="smallBtn">Actualizar</button></div><div id="historyList"><p class="muted">Cargando…</p></div></div></section>
   <div class="sync" id="syncStatus">Los datos se guardan en la nube.</div>
 </div>
@@ -74,7 +89,7 @@
 (() => {
  const varieties=['Royal Gala','Delicio','Golden','Fuji verde','Fuji roja'];
  const colors=['#d94b45','#b84d4d','#e5b936','#5a9a4c','#c94b45'];
- let sb=null, stock={}, realtime=null, busy=false;
+ let sb=null, stock={}, realtime=null, busy=false, storeDaysCache=[], storeItemsCache=[];
  const $=id=>document.getElementById(id);
  const config=window.POMES_CONFIG||{};
  const ready=!!(window.supabase&&config.supabaseUrl&&config.supabaseAnonKey&&!config.supabaseUrl.includes('PEGA_AQUI')&&!config.supabaseAnonKey.includes('PEGA_AQUI'));
@@ -95,7 +110,7 @@
    const {data,error}=await sb.from('stock').select('*').order('variety');
    if(error){setConnection('Error de conexión');message('moveMessage','No se pudo cargar el stock: '+error.message);return;}
    stock={};(data||[]).forEach(r=>stock[r.variety]=r.boxes);
-   renderStock();await loadHistory();await loadMarkets();setConnection('Sincronizado',true);$('syncStatus').textContent='Última sincronización: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+   renderStock();await loadHistory();await loadMarkets();await loadStores();setConnection('Sincronizado',true);$('syncStatus').textContent='Última sincronización: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
  }
  function renderStock(){
    const total=varieties.reduce((n,v)=>n+(stock[v]||0),0);
@@ -197,6 +212,77 @@
  }
  function messageFor(form,text){const el=form.querySelector('.marketCloseMessage');if(el){el.className='marketCloseMessage error';el.textContent=text;}}
 
+
+ function buildStoreSalesRows(values={}){
+   $('storeSalesRows').innerHTML=varieties.map(v=>'<div class="marketRow"><label>'+escapeHtml(v)+'</label><div class="marketMeta">Stock actual: '+(stock[v]||0)+' cajas</div><input type="number" min="0" step="1" value="'+(Number.isInteger(values[v])?values[v]:0)+'" inputmode="numeric" data-store-variety="'+escapeHtml(v)+'" aria-label="Cajas vendidas de '+escapeHtml(v)+'"></div>').join('');
+ }
+ async function loadStores(){
+   if(!sb)return;
+   const openBox=$('openStoresList'),historyBox=$('storeHistoryList');
+   if(!openBox||!historyBox)return;
+   const {data:days,error}=await sb.from('store_days').select('id,store_date,status,created_at,updated_at,closed_at').order('store_date',{ascending:false}).limit(60);
+   if(error){openBox.innerHTML='<p class="error">No se pudieron cargar las jornadas de tienda: '+escapeHtml(error.message)+'</p>';historyBox.innerHTML='';return;}
+   storeDaysCache=days||[];
+   const ids=storeDaysCache.map(d=>d.id);let items=[];
+   if(ids.length){const q=await sb.from('store_day_items').select('store_day_id,variety,boxes_sold').in('store_day_id',ids);if(q.error){openBox.innerHTML='<p class="error">'+escapeHtml(q.error.message)+'</p>';historyBox.innerHTML='';return;}items=q.data||[];}
+   storeItemsCache=items;
+   const byDay={};items.forEach(it=>(byDay[it.store_day_id]||(byDay[it.store_day_id]=[])).push(it));
+   const pending=storeDaysCache.filter(d=>d.status==='open');
+   openBox.innerHTML=pending.length?pending.map(d=>{
+     const its=(byDay[d.id]||[]).sort((a,b)=>varieties.indexOf(a.variety)-varieties.indexOf(b.variety));
+     const total=its.reduce((n,it)=>n+it.boxes_sold,0);
+     return '<div class="movement"><strong>Tienda · '+escapeHtml(d.store_date)+'</strong><div class="marketSummary"><span>Ventas indicadas: '+total+' cajas</span><span>Equivalente: '+(total*20)+' kg</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_sold+' cajas').join(' · ')+'</small><div class="marketGrid" style="margin-top:10px"><button type="button" class="smallBtn" data-edit-store="'+d.id+'">Cargar para editar</button><button type="button" class="smallBtn" data-close-store="'+d.id+'">Confirmar cierre</button></div><small class="marketMeta">El stock aún no se ha descontado.</small></div>';
+   }).join('<hr style="border:0;border-top:1px solid var(--line);margin:16px 0">'):'<p class="muted">No hay jornadas pendientes. Guarda las ventas de una jornada para empezar.</p>';
+   const closed=storeDaysCache.filter(d=>d.status==='closed');
+   historyBox.innerHTML=closed.length?closed.slice(0,30).map(d=>{
+     const its=(byDay[d.id]||[]).sort((a,b)=>varieties.indexOf(a.variety)-varieties.indexOf(b.variety));
+     const total=its.reduce((n,it)=>n+it.boxes_sold,0);
+     return '<div class="movement"><strong>Tienda · '+escapeHtml(d.store_date)+'</strong><div class="marketSummary"><span>Descontadas: '+total+' cajas</span><span>'+(total*20)+' kg</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_sold+' cajas').join(' · ')+'</small></div>';
+   }).join(''):'<p class="muted">Todavía no hay jornadas cerradas.</p>';
+ }
+ async function submitStoreDay(e){
+   e.preventDefault();if(busy)return;
+   const storeDate=$('storeDate').value;
+   const items=varieties.map(v=>({variety:v,boxes_sold:Number(document.querySelector('[data-store-variety="'+v+'"]').value)}));
+   if(!storeDate){message('storeMessage','Selecciona la fecha de la jornada.');return;}
+   if(items.some(it=>!Number.isInteger(it.boxes_sold)||it.boxes_sold<0)){message('storeMessage','Introduce solo números enteros no negativos.');return;}
+   if(!items.some(it=>it.boxes_sold>0)){message('storeMessage','Indica al menos una caja vendida para guardar la jornada.');return;}
+   const total=items.reduce((n,it)=>n+it.boxes_sold,0);
+   if(!confirm('¿Guardar las ventas de tienda del '+storeDate+'? Son '+total+' cajas ('+(total*20)+' kg). El stock NO se descontará hasta confirmar el cierre.'))return;
+   busy=true;const button=e.target.querySelector('button[type="submit"]');button.disabled=true;
+   try{
+     const {data,error}=await sb.rpc('save_store_day',{p_store_date:storeDate,p_items:items});
+     if(error)throw error;
+     message('storeMessage','Ventas guardadas como jornada pendiente. El stock sigue igual hasta el cierre.','success');
+     buildStoreSalesRows({});
+     await loadStores();
+   }catch(err){message('storeMessage','No se pudieron guardar las ventas: '+err.message);}
+   finally{busy=false;button.disabled=false;}
+ }
+ function editStoreDay(id){
+   const day=storeDaysCache.find(d=>d.id===id);if(!day||day.status!=='open')return;
+   const vals={};storeItemsCache.filter(it=>it.store_day_id===id).forEach(it=>vals[it.variety]=it.boxes_sold);
+   $('storeDate').value=day.store_date;buildStoreSalesRows(vals);
+   message('storeMessage','Jornada cargada para editar. Al guardar, se actualizarán las ventas sin descontar stock.','success');
+   $('storeForm').scrollIntoView({behavior:'smooth',block:'start'});
+ }
+ async function closeStoreDay(id){
+   const day=storeDaysCache.find(d=>d.id===id);if(!day||day.status!=='open')return;
+   const items=storeItemsCache.filter(it=>it.store_day_id===id);
+   const total=items.reduce((n,it)=>n+it.boxes_sold,0);
+   const shortage=items.find(it=>it.boxes_sold>(stock[it.variety]||0));
+   if(shortage){alert('No hay suficientes cajas de '+shortage.variety+'. Disponibles: '+(stock[shortage.variety]||0)+', ventas indicadas: '+shortage.boxes_sold+'. No se ha descontado nada.');return;}
+   if(!confirm('¿Confirmas el cierre de tienda del '+day.store_date+'? Se descontarán '+total+' cajas ('+(total*20)+' kg) de la cámara y se guardará el movimiento en el historial.'))return;
+   if(busy)return;busy=true;
+   try{
+     const {error}=await sb.rpc('close_store_day',{p_store_day_id:id});
+     if(error)throw error;
+     await loadAll();
+     message('storeMessage','Jornada cerrada y ventas descontadas de cámara correctamente.','success');
+   }catch(err){message('storeMessage','No se pudo cerrar la jornada: '+err.message);}
+   finally{busy=false;}
+ }
+
  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
  function subscribe(){if(realtime)sb.removeChannel(realtime);realtime=sb.channel('pomes-live-stock').on('postgres_changes',{event:'*',schema:'public',table:'stock'},()=>loadAll()).on('postgres_changes',{event:'*',schema:'public',table:'movements'},()=>loadHistory()).subscribe();}
  $('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!ready){await start();return;}message('loginMessage','Entrando…','success');const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)message('loginMessage','No se ha podido entrar: '+error.message);});
@@ -204,8 +290,10 @@
  $('movementForm').addEventListener('submit',submitMovement);$('refreshHistory').addEventListener('click',loadHistory);
  $('marketOpenForm').addEventListener('submit',submitMarketOpen);
  $('marketsView').addEventListener('submit',e=>{if(e.target.matches('.marketCloseForm'))submitMarketClose(e);});
- document.querySelectorAll('.bottom button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(btn.dataset.view+'View').classList.add('active');if(btn.dataset.view==='history')loadHistory();if(btn.dataset.view==='markets')loadMarkets();}));
- $('marketDate').value=localDate();buildMarketTakeRows();
+ $('storeForm').addEventListener('submit',submitStoreDay);
+ $('storesView').addEventListener('click',e=>{const edit=e.target.closest('[data-edit-store]');const close=e.target.closest('[data-close-store]');if(edit)editStoreDay(edit.dataset.editStore);if(close)closeStoreDay(close.dataset.closeStore);});
+ document.querySelectorAll('.bottom button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(btn.dataset.view+'View').classList.add('active');if(btn.dataset.view==='history')loadHistory();if(btn.dataset.view==='markets')loadMarkets();if(btn.dataset.view==='stores')loadStores();}));
+ $('marketDate').value=localDate();buildMarketTakeRows();$('storeDate').value=localDate();buildStoreSalesRows();
  start();
 })();
 </script>
