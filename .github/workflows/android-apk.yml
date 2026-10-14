@@ -43,6 +43,8 @@ jobs:
           mkdir -p www
           cp index.html config.js www/
           if [ -f manifest.webmanifest ]; then cp manifest.webmanifest www/; fi
+          mkdir -p www/assets/logo
+          cp assets/logo/pomes-logo.png www/assets/logo/pomes-logo.png
 
       - name: Instalar Capacitor
         run: |
