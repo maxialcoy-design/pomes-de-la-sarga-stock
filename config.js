@@ -1,6 +1,6 @@
-// Copia este archivo como config.js y añade los datos de tu proyecto Supabase.
-// Usa solo la clave PUBLICABLE (anon/publishable). Nunca uses service_role/secret key.
+// Configuración pública de Supabase para Pomes de la Sarga.
+// Solo se usa la clave publishable; nunca incluir service_role ni secret.
 window.POMES_CONFIG = {
-  supabaseUrl: "PEGA_AQUI_LA_URL_DE_SUPABASE",
-  supabaseAnonKey: "PEGA_AQUI_LA_CLAVE_PUBLICABLE"
+  supabaseUrl: "https://vcsqmjxgjyrefqrbasjo.supabase.co",
+  supabaseAnonKey: "sb_publishable_1tTv7boAbw7V5yyn8rxQzg_5iyzgDLi"
 };
