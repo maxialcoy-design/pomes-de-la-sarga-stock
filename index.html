@@ -198,7 +198,7 @@
    historyBox.innerHTML=past.length?past.slice(0,20).map(d=>{
      const its=(byDay[d.id]||[]).sort((a,b)=>varieties.indexOf(a.variety)-varieties.indexOf(b.variety));
      const taken=its.reduce((n,it)=>n+it.boxes_taken,0),returned=its.reduce((n,it)=>n+it.boxes_returned,0),sold=its.reduce((n,it)=>n+it.boxes_sold,0);
-     return '<div class="movement"><strong>'+escapeHtml(d.market_name)+' · '+escapeHtml(d.market_date)+'</strong><div class="marketSummary"><span>Llevadas: '+taken+'</span><span>Devueltas: '+returned+'</span><span>Vendidas: '+sold+'</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_taken+' llevadas, '+it.boxes_returned+' devueltas, '+it.boxes_sold+' vendidas').join(' · ')+'</small></div>';
+     return '<div class="movement"><strong>'+escapeHtml(d.market_name)+' · '+escapeHtml(d.market_date)+'</strong><div class="marketSummary"><span>Llevadas: '+taken+'</span><span>Devueltas: '+returned+'</span><span>Vendidas: '+sold+'</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_taken+' llevadas, '+it.boxes_returned+' devueltas, '+it.boxes_sold+' vendidas').join(' · ')+'</small><div style="margin-top:10px"><button type="button" class="btn danger" data-delete-market="'+d.id+'">Eliminar registro</button></div></div>';
    }).join(''):'<p class="muted">Todavía no hay jornadas cerradas.</p>';
  }
  function varietyIndex(v){return varieties.indexOf(v);}
@@ -262,13 +262,13 @@
    openBox.innerHTML=pending.length?pending.map(d=>{
      const its=(byDay[d.id]||[]).sort((a,b)=>varieties.indexOf(a.variety)-varieties.indexOf(b.variety));
      const total=its.reduce((n,it)=>n+it.boxes_sold,0);
-     return '<div class="movement"><strong>Tienda · '+escapeHtml(d.store_date)+'</strong><div class="marketSummary"><span>Ventas indicadas: '+total+' cajas</span><span>Equivalente: '+(total*20)+' kg</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_sold+' cajas').join(' · ')+'</small><div class="marketGrid" style="margin-top:10px"><button type="button" class="smallBtn" data-edit-store="'+d.id+'">Cargar para editar</button><button type="button" class="smallBtn" data-close-store="'+d.id+'">Confirmar cierre</button></div><small class="marketMeta">Pendiente de descontar al cerrar la jornada.</small></div>';
+     return '<div class="movement"><strong>Tienda · '+escapeHtml(d.store_date)+'</strong><div class="marketSummary"><span>Ventas indicadas: '+total+' cajas</span><span>Equivalente: '+(total*20)+' kg</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_sold+' cajas').join(' · ')+'</small><div class="marketGrid" style="margin-top:10px"><button type="button" class="smallBtn" data-edit-store="'+d.id+'">Cargar para editar</button><button type="button" class="smallBtn" data-close-store="'+d.id+'">Confirmar cierre</button><button type="button" class="btn danger" data-delete-store="'+d.id+'">Eliminar registro</button></div><small class="marketMeta">Pendiente de descontar al cerrar la jornada.</small></div>';
    }).join('<hr style="border:0;border-top:1px solid var(--line);margin:16px 0">'):'<p class="muted">No hay jornadas pendientes de cierre.</p>';
    const closed=storeDaysCache.filter(d=>d.status==='closed');
    historyBox.innerHTML=closed.length?closed.slice(0,30).map(d=>{
      const its=(byDay[d.id]||[]).sort((a,b)=>varieties.indexOf(a.variety)-varieties.indexOf(b.variety));
      const total=its.reduce((n,it)=>n+it.boxes_sold,0);
-     return '<div class="movement"><strong>Tienda · '+escapeHtml(d.store_date)+'</strong><div class="marketSummary"><span>Descontadas: '+total+' cajas</span><span>'+(total*20)+' kg</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_sold+' cajas').join(' · ')+'</small></div>';
+     return '<div class="movement"><strong>Tienda · '+escapeHtml(d.store_date)+'</strong><div class="marketSummary"><span>Descontadas: '+total+' cajas</span><span>'+(total*20)+' kg</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_sold+' cajas').join(' · ')+'</small><div style="margin-top:10px"><button type="button" class="btn danger" data-delete-store="'+d.id+'">Eliminar registro</button></div></div>';
    }).join(''):'<p class="muted">Todavía no hay jornadas cerradas.</p>';
  }
  async function submitStoreDay(e){
@@ -322,7 +322,7 @@
  $('marketOpenForm').addEventListener('submit',submitMarketOpen);
  $('marketsView').addEventListener('submit',e=>{if(e.target.matches('.marketCloseForm'))submitMarketClose(e);});
  $('storeForm').addEventListener('submit',submitStoreDay);
- $('storesView').addEventListener('click',e=>{const edit=e.target.closest('[data-edit-store]');const close=e.target.closest('[data-close-store]');if(edit)editStoreDay(edit.dataset.editStore);if(close)closeStoreDay(close.dataset.closeStore);});
+ $('storesView').addEventListener('click',e=>{const edit=e.target.closest('[data-edit-store]');const close=e.target.closest('[data-close-store]');const del=e.target.closest('[data-delete-store]');if(edit)editStoreDay(edit.dataset.editStore);if(close)closeStoreDay(close.dataset.closeStore);if(del)deleteStoreDay(del.dataset.deleteStore);});\n  $('marketsView').addEventListener('click',e=>{const del=e.target.closest('[data-delete-market]');if(del)deleteMarketDay(del.dataset.deleteMarket);});
  document.querySelectorAll('.bottom button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(btn.dataset.view+'View').classList.add('active');if(btn.dataset.view==='history')loadHistory();if(btn.dataset.view==='markets')loadMarkets();if(btn.dataset.view==='stores')loadStores();}));
  $('marketDate').value=localDate();buildMarketTakeRows();$('storeDate').value=localDate();buildStoreSalesRows();
  start();
