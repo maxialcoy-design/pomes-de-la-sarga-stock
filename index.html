@@ -67,16 +67,16 @@
     <div class="sectionTitle">Tienda</div>
     <div class="panel">
       <h3>Registrar ventas de tienda</h3>
-      <p class="muted">Días habituales: miércoles, viernes y domingo. Registra las cajas vendidas y, al cerrar la jornada, se descontarán del stock.</p>
+      <p class="muted">Días habituales: miércoles, viernes y domingo. Introduce todas las ventas al final de la jornada y se descontarán del stock al registrarlas.</p>
       <form id="storeForm">
         <label for="storeDate">Fecha de la jornada</label><input id="storeDate" type="date" required>
         <h4>Cajas vendidas por variedad</h4>
         <div id="storeSalesRows" class="marketGrid"></div>
-        <button class="btn primary" style="width:100%;margin-top:12px" type="submit">Registrar ventas para descontar al cierre</button>
+        <button class="btn primary" style="width:100%;margin-top:12px" type="submit">Registrar ventas y descontar stock</button>
       </form>
       <div id="storeMessage" aria-live="polite"></div>
     </div>
-    <div class="panel"><h3>Jornadas pendientes de cierre</h3><p class="muted">Puedes editar las ventas guardadas. Al cerrar, se comprobará que hay stock suficiente y se descontarán las cajas.</p><div id="openStoresList"><p class="muted">Cargando…</p></div></div>
+    <div class="panel"><h3>Jornadas pendientes</h3><div id="openStoresList"><p class="muted">Cargando…</p></div></div>
     <div class="panel"><h3>Historial de tienda</h3><div id="storeHistoryList"><p class="muted">Cargando…</p></div></div>
   </section>
   <section id="historyView" class="view"><div class="sectionTitle">Historial compartido</div><div class="panel"><div class="rowBetween"><strong>Últimos movimientos</strong><button id="refreshHistory" class="smallBtn">Actualizar</button></div><div id="historyList"><p class="muted">Cargando…</p></div></div></section>
@@ -232,7 +232,7 @@
      const its=(byDay[d.id]||[]).sort((a,b)=>varieties.indexOf(a.variety)-varieties.indexOf(b.variety));
      const total=its.reduce((n,it)=>n+it.boxes_sold,0);
      return '<div class="movement"><strong>Tienda · '+escapeHtml(d.store_date)+'</strong><div class="marketSummary"><span>Ventas indicadas: '+total+' cajas</span><span>Equivalente: '+(total*20)+' kg</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_sold+' cajas').join(' · ')+'</small><div class="marketGrid" style="margin-top:10px"><button type="button" class="smallBtn" data-edit-store="'+d.id+'">Cargar para editar</button><button type="button" class="smallBtn" data-close-store="'+d.id+'">Confirmar cierre</button></div><small class="marketMeta">Pendiente de descontar al cerrar la jornada.</small></div>';
-   }).join('<hr style="border:0;border-top:1px solid var(--line);margin:16px 0">'):'<p class="muted">No hay jornadas pendientes. Guarda las ventas de una jornada para empezar.</p>';
+   }).join('<hr style="border:0;border-top:1px solid var(--line);margin:16px 0">'):'<p class="muted">No hay jornadas pendientes de cierre.</p>';
    const closed=storeDaysCache.filter(d=>d.status==='closed');
    historyBox.innerHTML=closed.length?closed.slice(0,30).map(d=>{
      const its=(byDay[d.id]||[]).sort((a,b)=>varieties.indexOf(a.variety)-varieties.indexOf(b.variety));
@@ -248,12 +248,12 @@
    if(items.some(it=>!Number.isInteger(it.boxes_sold)||it.boxes_sold<0)){message('storeMessage','Introduce solo números enteros no negativos.');return;}
    if(!items.some(it=>it.boxes_sold>0)){message('storeMessage','Indica al menos una caja vendida para guardar la jornada.');return;}
    const total=items.reduce((n,it)=>n+it.boxes_sold,0);
-   if(!confirm('¿Registrar las ventas de tienda del '+storeDate+'? Son '+total+' cajas ('+(total*20)+' kg). Se descontarán del stock al confirmar el cierre.'))return;
+   if(!confirm('¿Registrar las ventas de tienda del '+storeDate+'? Son '+total+' cajas ('+(total*20)+' kg). Se descontarán ahora del stock.'))return;
    busy=true;const button=e.target.querySelector('button[type="submit"]');button.disabled=true;
    try{
      const {data,error}=await sb.rpc('save_store_day',{p_store_date:storeDate,p_items:items});
      if(error)throw error;
-     message('storeMessage','Ventas registradas. Quedan pendientes de descontar del stock al cerrar la jornada.','success');
+     message('storeMessage','Ventas registradas y descontadas del stock correctamente.','success');
      buildStoreSalesRows({});
      await loadStores();
    }catch(err){message('storeMessage','No se pudieron guardar las ventas: '+err.message);}
