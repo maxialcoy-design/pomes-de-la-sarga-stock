@@ -174,7 +174,7 @@
  async function loadHistory(){
    const {data,error}=await sb.from('movements').select('*').order('created_at',{ascending:false}).limit(100);
    if(error){$('historyList').innerHTML='<p class="error">'+error.message+'</p>';return;}
-   $('historyList').innerHTML=(data||[]).length?(data||[]).map(m=>'<div class="movement"><strong>'+escapeHtml(m.description||m.kind)+' · '+escapeHtml(m.variety||'Operación')+'</strong><small>'+new Date(m.created_at).toLocaleString('es-ES')+' · '+(m.boxes>0?'+':'')+m.boxes+' cajas · '+(m.kg||Math.abs(m.boxes)*20)+' kg</small></div>').join(''):'<p class="muted">Todavía no hay movimientos.</p>';
+   $('historyList').innerHTML=(data||[]).length?(data||[]).map(m=>'<div class="movement"><strong>'+escapeHtml(m.description||m.kind)+' · '+escapeHtml(m.variety||'Operación')+'</strong><small>'+new Date(m.created_at).toLocaleString('es-ES')+' · '+(m.boxes>0?'+':'')+m.boxes+' cajas · '+(m.kg||Math.abs(m.boxes)*20)+' kg</small><div style="margin-top:8px"><button type="button" class="btn danger" data-delete-movement="'+m.id+'">Eliminar registro</button></div></div>').join(''):'<p class="muted">Todavía no hay movimientos.</p>';
  }
 
  function localDate(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -330,6 +330,7 @@
  $('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!ready){await start();return;}message('loginMessage','Entrando…','success');const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)message('loginMessage','No se ha podido entrar: '+error.message);});
  $('logout').addEventListener('click',async()=>{if(confirm('¿Quieres cerrar sesión?'))await sb.auth.signOut();});
  $('movementForm').addEventListener('submit',submitMovement);$('refreshHistory').addEventListener('click',loadHistory);
+  $('historyView').addEventListener('click',e=>{const del=e.target.closest('[data-delete-movement]');if(del)deleteMovement(del.dataset.deleteMovement);});
  $('marketOpenForm').addEventListener('submit',submitMarketOpen);
  $('marketsView').addEventListener('submit',e=>{if(e.target.matches('.marketCloseForm'))submitMarketClose(e);});
  $('storeForm').addEventListener('submit',submitStoreDay);
