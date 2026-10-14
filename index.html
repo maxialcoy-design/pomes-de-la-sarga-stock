@@ -271,6 +271,17 @@
      return '<div class="movement"><strong>Tienda · '+escapeHtml(d.store_date)+'</strong><div class="marketSummary"><span>Descontadas: '+total+' cajas</span><span>'+(total*20)+' kg</span></div><small>'+its.map(it=>escapeHtml(it.variety)+': '+it.boxes_sold+' cajas').join(' · ')+'</small><div style="margin-top:10px"><button type="button" class="btn danger" data-delete-store="'+d.id+'">Eliminar registro</button></div></div>';
    }).join(''):'<p class="muted">Todavía no hay jornadas cerradas.</p>';
  }
+ async function deleteMarketDay(id){
+   if(!confirm('¿Eliminar definitivamente esta jornada de mercado? Se revertirá su efecto en el stock y se eliminarán sus movimientos asociados.'))return;
+   try{const {error}=await sb.rpc('delete_market_day',{p_market_day_id:id});if(error)throw error;await loadAll();await loadMarkets();await loadHistory();alert('Registro de mercado eliminado.');}
+   catch(err){alert('No se pudo eliminar el mercado: '+err.message);}
+ }
+ async function deleteStoreDay(id){
+   const day=storeDaysCache.find(d=>d.id===id);
+   if(!confirm('¿Eliminar definitivamente esta jornada de tienda?'+(day&&day.status==='closed'?' Se devolverán al stock las cajas descontadas.':'')+' Se eliminarán sus movimientos asociados.'))return;
+   try{const {error}=await sb.rpc('delete_store_day',{p_store_day_id:id});if(error)throw error;await loadAll();await loadStores();await loadHistory();alert('Registro de tienda eliminado.');}
+   catch(err){alert('No se pudo eliminar la tienda: '+err.message);}
+ }
  async function submitStoreDay(e){
    e.preventDefault();if(busy)return;
    const storeDate=$('storeDate').value;
