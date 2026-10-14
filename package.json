@@ -1,0 +1,9 @@
+{
+  "name": "pomes-de-la-sarga-stock",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplicación Android de Pomes de la Sarga basada en la web existente",
+  "scripts": {
+    "build:android": "npx cap sync android"
+  }
+}
