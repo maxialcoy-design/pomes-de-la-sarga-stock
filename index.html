@@ -10,16 +10,28 @@
 <title>Pomes de la Sarga · Stock</title>
 <style>
 :root{--bg:#f7f6f1;--green:#2f6840;--green2:#e8f0e6;--text:#26352b;--muted:#747d75;--line:#e0e4dd;--red:#a84b4b;--shadow:0 5px 18px #233c2810}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:82px}button,input{font:inherit}button{cursor:pointer}.app{max-width:720px;margin:auto;padding:18px 16px 24px}.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:5px 3px 18px}.brand h1{font-size:clamp(21px,5vw,29px);line-height:1.1;margin:0;font-weight:850;letter-spacing:-.6px}.brand p{margin:7px 0 0;color:var(--muted);font-size:13px}.badge{font-size:12px;background:var(--green2);color:var(--green);padding:7px 10px;border-radius:999px;font-weight:750;white-space:nowrap}.panel,.card{background:white;border:1px solid var(--line);border-radius:22px;padding:18px;margin:12px 0;box-shadow:var(--shadow)}.total{background:var(--green);color:white;border-radius:26px;padding:25px;margin-bottom:16px}.total small{opacity:.85;font-weight:750;letter-spacing:.7px}.total strong{display:block;font-size:clamp(40px,11vw,58px);line-height:1.1;margin:9px 0 3px;letter-spacing:-1.5px}.total span{opacity:.9}.sectionTitle{font-size:21px;font-weight:850;margin:8px 2px 12px}.varietyHead{display:flex;align-items:center;gap:10px}.fruitDot{width:13px;height:13px;border-radius:50%;flex:none}.varietyName{font-size:18px;font-weight:850}.stockNumber{margin-left:auto;text-align:right}.stockNumber strong{font-size:23px;display:block}.stockNumber small{color:var(--muted)}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.btn{border:0;border-radius:13px;padding:13px 12px;font-weight:800}.btn:disabled{opacity:.45}.primary{background:var(--green);color:white}.soft{background:var(--green2);color:var(--green)}.danger{background:#faeaea;color:var(--red)}.formRow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.formRow input,.formRow select,input[type=email],input[type=password]{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;color:var(--text)}label{display:block;font-size:13px;font-weight:750;margin:10px 0 5px}.muted{color:var(--muted);font-size:13px}.view{display:none}.view.active{display:block}.bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:7px max(7px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left));box-shadow:0 -4px 18px #233c280c}.bottom button{border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:800;padding:7px 2px;border-radius:12px}.bottom button span{display:block;font-size:20px;margin-bottom:2px}.bottom button.active{background:var(--green2);color:var(--green)}.notice{padding:12px;border-radius:13px;background:#fff4d8;color:#70551b;font-size:13px;margin:12px 0}.hidden{display:none!important}.movement{border-bottom:1px solid var(--line);padding:12px 0}.movement:last-child{border-bottom:0}.movement strong{display:block}.movement small{color:var(--muted)}.loginWrap{max-width:440px;margin:7vh auto}.loginWrap h2{margin-top:0}.error{color:#a32f2f;font-size:13px;margin-top:10px}.success{color:var(--green);font-size:13px;margin-top:10px}.sync{font-size:12px;color:var(--muted);text-align:center;padding:8px}.rowBetween{display:flex;justify-content:space-between;align-items:center;gap:8px}.smallBtn{border:0;background:var(--green2);color:var(--green);font-weight:800;border-radius:10px;padding:9px 11px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:82px}button,input{font:inherit}button{cursor:pointer}.app{max-width:720px;margin:auto;padding:18px 16px 24px}.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:5px 3px 18px}.brand h1{font-size:clamp(21px,5vw,29px);line-height:1.1;margin:0;font-weight:850;letter-spacing:-.6px}.brand p{margin:7px 0 0;color:var(--muted);font-size:13px}.badge{font-size:12px;background:var(--green2);color:var(--green);padding:7px 10px;border-radius:999px;font-weight:750;white-space:nowrap}.panel,.card{background:white;border:1px solid var(--line);border-radius:22px;padding:18px;margin:12px 0;box-shadow:var(--shadow)}
+.varietyHead{display:flex;align-items:center;gap:10px}.fruitDot{width:13px;height:13px;border-radius:50%;flex:none}
+.varietyName{font-size:19px;font-weight:850}.stockNumber{margin-left:auto;text-align:right;white-space:nowrap}.stockNumber strong{font-size:25px;display:block}.stockNumber small{display:block;color:var(--muted)}
+.cameraControls{display:grid;grid-template-columns:52px 1fr 52px;gap:9px;margin-top:18px}
+.cameraControls button,.cameraControls input{height:54px;border-radius:15px;border:1px solid var(--line);background:#f4f6f2;text-align:center}
+.cameraControls button{font-size:29px;font-weight:800;color:var(--green)}.cameraControls input{font-size:22px;font-weight:800;min-width:0;width:100%}
+.cameraActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.cameraActions button{border:0;border-radius:14px;padding:14px 5px;font-weight:850;font-size:15px}
+.cameraActions .cameraIn{background:var(--green2);color:var(--green)}.cameraActions .cameraOut{background:#faeaea;color:var(--red)}
+.splash{position:fixed;inset:0;z-index:1000;background:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .35s}
+.splash img{width:min(76vw,390px);height:auto;object-fit:contain}.splash.hide{opacity:0;pointer-events:none}
+.brandLogo{width:44px;height:44px;object-fit:contain;border-radius:9px;background:#fff;vertical-align:middle;margin-right:8px}.total{background:var(--green);color:white;border-radius:26px;padding:25px;margin-bottom:16px}.total small{opacity:.85;font-weight:750;letter-spacing:.7px}.total strong{display:block;font-size:clamp(40px,11vw,58px);line-height:1.1;margin:9px 0 3px;letter-spacing:-1.5px}.total span{opacity:.9}.sectionTitle{font-size:21px;font-weight:850;margin:8px 2px 12px}.varietyHead{display:flex;align-items:center;gap:10px}.fruitDot{width:13px;height:13px;border-radius:50%;flex:none}.varietyName{font-size:18px;font-weight:850}.stockNumber{margin-left:auto;text-align:right}.stockNumber strong{font-size:23px;display:block}.stockNumber small{color:var(--muted)}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.btn{border:0;border-radius:13px;padding:13px 12px;font-weight:800}.btn:disabled{opacity:.45}.primary{background:var(--green);color:white}.soft{background:var(--green2);color:var(--green)}.danger{background:#faeaea;color:var(--red)}.formRow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.formRow input,.formRow select,input[type=email],input[type=password]{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;color:var(--text)}label{display:block;font-size:13px;font-weight:750;margin:10px 0 5px}.muted{color:var(--muted);font-size:13px}.view{display:none}.view.active{display:block}.bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:7px max(7px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left));box-shadow:0 -4px 18px #233c280c}.bottom button{border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:800;padding:7px 2px;border-radius:12px}.bottom button span{display:block;font-size:20px;margin-bottom:2px}.bottom button.active{background:var(--green2);color:var(--green)}.notice{padding:12px;border-radius:13px;background:#fff4d8;color:#70551b;font-size:13px;margin:12px 0}.hidden{display:none!important}.movement{border-bottom:1px solid var(--line);padding:12px 0}.movement:last-child{border-bottom:0}.movement strong{display:block}.movement small{color:var(--muted)}.loginWrap{max-width:440px;margin:7vh auto}.loginWrap h2{margin-top:0}.error{color:#a32f2f;font-size:13px;margin-top:10px}.success{color:var(--green);font-size:13px;margin-top:10px}.sync{font-size:12px;color:var(--muted);text-align:center;padding:8px}.rowBetween{display:flex;justify-content:space-between;align-items:center;gap:8px}.smallBtn{border:0;background:var(--green2);color:var(--green);font-weight:800;border-radius:10px;padding:9px 11px}
 .marketGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.marketRow{border:1px solid var(--line);border-radius:13px;padding:11px;min-width:0}.marketRow label{margin-top:0}.marketRow input{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px}.marketMeta{color:var(--muted);font-size:12px}.marketSummary{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0}.marketSummary span{background:var(--green2);color:var(--green);border-radius:10px;padding:7px 9px;font-size:12px;font-weight:750}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./config.js"></script>
 </head>
 <body>
+<div id="splash" class="splash"><img src="./assets/pomes-logo.png" alt="Pomes de la Sarga"></div>
 <div id="loginScreen" class="app loginWrap">
   <div class="panel">
-    <h1>🍎 Pomes de la Sarga</h1><p class="muted">Control compartido de stock</p>
+    <h1><img class="brandLogo" src="./assets/pomes-logo.png" alt="">Pomes de la Sarga</h1><p class="muted">Control compartido de stock</p>
     <h2>Entrar</h2>
     <form id="loginForm">
       <label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="username" required>
@@ -31,12 +43,12 @@
   </div>
 </div>
 <div id="appScreen" class="app hidden">
-  <header class="header"><div class="brand"><h1>🍎 Pomes de la Sarga</h1><p>Control de cámara · 20 kg por caja</p></div><button id="logout" class="smallBtn">Salir</button></header>
+  <header class="header"><div class="brand"><h1><img class="brandLogo" src="./assets/pomes-logo.png" alt="">Pomes de la Sarga</h1><p>Control de cámara · 20 kg por caja</p></div><button id="logout" class="smallBtn">Salir</button></header>
   <div class="rowBetween"><div class="sectionTitle">Stock de cámara</div><span id="connection" class="badge">Conectando…</span></div>
   <section id="stockView" class="view active">
     <div class="total"><small>STOCK TOTAL</small><strong id="totalBoxes">0 cajas</strong><span id="totalKg">0 kg</span></div>
     <div id="stockCards"></div>
-    <div class="panel"><h3>Movimiento manual</h3><p class="muted">Cada caja son 20 kg. Confirma antes de guardar para actualizar el stock compartido.</p>
+    <div class="panel hidden"><h3>Movimiento manual</h3><p class="muted">Cada caja son 20 kg. Confirma antes de guardar para actualizar el stock compartido.</p>
       <form id="movementForm">
         <label for="moveVariety">Variedad</label><select id="moveVariety"></select>
         <label for="moveKind">Movimiento</label><select id="moveKind"><option value="entrada">Entrada a cámara (+)</option><option value="salida">Salida de cámara (−)</option><option value="correccion">Corrección de stock</option></select>
@@ -115,8 +127,27 @@
  function renderStock(){
    const total=varieties.reduce((n,v)=>n+(stock[v]||0),0);
    $('totalBoxes').textContent=total+' cajas';$('totalKg').textContent=(total*20).toLocaleString('es-ES')+' kg';
-   $('stockCards').innerHTML=varieties.map((v,i)=>'<article class="card"><div class="varietyHead"><span class="fruitDot" style="background:'+colors[i]+'"></span><span class="varietyName">'+v+'</span><div class="stockNumber"><strong>'+(stock[v]||0)+' cajas</strong><small>'+((stock[v]||0)*20).toLocaleString('es-ES')+' kg</small></div></div></article>').join('');
+   $('stockCards').innerHTML=varieties.map((v,i)=>'<article class="card"><div class="varietyHead"><span class="fruitDot" style="background:'+colors[i]+'"></span><span class="varietyName">'+['🍎','🍎','🍏','🟢','🔴'][i]+' '+v+'</span><div class="stockNumber"><strong>'+(stock[v]||0)+' cajas</strong><small>'+((stock[v]||0)*20).toLocaleString('es-ES')+' kg</small></div></div><div class="cameraControls"><button type="button" aria-label="Restar cajas" onclick="cameraQtyChange(\''+v+'\',-1)">−</button><input type="number" min="1" step="1" value="1" inputmode="numeric" id="cameraQty-'+v.replace(/[^a-z0-9]/gi,'')+'" aria-label="Número de cajas de '+v+'"><button type="button" aria-label="Sumar cajas" onclick="cameraQtyChange(\''+v+'\',1)">＋</button></div><div class="cameraActions"><button type="button" class="cameraIn" onclick="cameraMove(\''+v+'\',\'entrada\')">＋ ENTRADA</button><button type="button" class="cameraOut" onclick="cameraMove(\''+v+'\',\'salida\')">− SALIDA</button></div></article>').join('');
  }
+ window.cameraQtyChange=function(v,delta){const el=$('cameraQty-'+v.replace(/[^a-z0-9]/gi,''));if(el)el.value=Math.max(1,(parseInt(el.value,10)||1)+delta);};
+ window.cameraMove=async function(v,kind){
+   if(busy)return;
+   const el=$('cameraQty-'+v.replace(/[^a-z0-9]/gi,''));const n=Number(el?.value);
+   if(!Number.isInteger(n)||n<1){alert('Indica al menos una caja.');return;}
+   const current=stock[v]||0;
+   if(kind==='salida'&&n>current){alert('No puedes sacar '+n+' cajas de '+v+'. En cámara hay '+current+'.');return;}
+   if(!confirm('¿Confirmas '+(kind==='entrada'?'entrar':'sacar')+' '+n+' cajas de '+v+'?'))return;
+   busy=true;
+   try{
+     const next=kind==='entrada'?current+n:current-n;
+     const {error}=await sb.from('stock').update({boxes:next,updated_at:new Date().toISOString()}).eq('variety',v);
+     if(error)throw error;
+     await log(kind,v,kind==='entrada'?n:-n,'Cámara: '+(kind==='entrada'?'entrada':'salida')+' de '+n+' cajas',{before:current,after:next});
+     await loadAll();
+     message('moveMessage','Movimiento guardado y sincronizado.','success');
+   }catch(err){alert('No se pudo actualizar el stock: '+err.message);await loadAll();}
+   finally{busy=false;}
+ };
  async function log(kind,variety,boxes,description,details={}){
    const {error}=await sb.from('movements').insert({kind,variety,boxes,description,details});
    if(error) throw error;
