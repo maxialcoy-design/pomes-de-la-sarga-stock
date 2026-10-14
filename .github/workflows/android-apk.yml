@@ -96,13 +96,15 @@ jobs:
             }
             const xmlDir = path.join(root, 'mipmap-anydpi-v26');
             fs.mkdirSync(xmlDir, { recursive: true });
-            const xml = '<?xml version="1.0" encoding="utf-8"?>\\n'
-              + '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\\n'
-              + '  <background android:drawable="@android:color/white"/>\\n'
-              + '  <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\\n'
-              + '</adaptive-icon>\\n';
+            const xml = [
+              '<?xml version="1.0" encoding="utf-8"?>',
+              '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">',
+              '  <background android:drawable="@android:color/white"/>',
+              '  <foreground android:drawable="@mipmap/ic_launcher_foreground"/>',
+              '</adaptive-icon>', ''
+            ].join(String.fromCharCode(10));
             for (const name of ['ic_launcher.xml','ic_launcher_round.xml']) {
-              fs.writeFileSync(path.join(xmlDir, name), xml.replace(/\\\\n/g, '\\n'));
+              fs.writeFileSync(path.join(xmlDir, name), xml);
             }
             console.log('Iconos clásicos y adaptativos creados con logo oficial');
           })().catch(err => { console.error(err); process.exit(1); });
