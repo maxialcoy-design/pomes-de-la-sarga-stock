@@ -272,15 +272,19 @@
    }).join(''):'<p class="muted">Todavía no hay jornadas cerradas.</p>';
  }
  async function deleteMarketDay(id){
-   if(!confirm('¿Eliminar definitivamente esta jornada de mercado? Se revertirá su efecto en el stock y se eliminarán sus movimientos asociados.'))return;
-   try{const {error}=await sb.rpc('delete_market_day',{p_market_day_id:id});if(error)throw error;await loadAll();await loadMarkets();await loadHistory();alert('Registro de mercado eliminado.');}
+   if(!confirm('¿Eliminar definitivamente esta jornada de mercado y sus movimientos del historial? El stock no cambiará.'))return;
+   try{const {error}=await sb.rpc('delete_market_day',{p_market_day_id:id});if(error)throw error;await loadMarkets();await loadHistory();alert('Jornada de mercado y movimientos asociados eliminados. El stock no ha cambiado.');}
    catch(err){alert('No se pudo eliminar el mercado: '+err.message);}
  }
  async function deleteStoreDay(id){
-   const day=storeDaysCache.find(d=>d.id===id);
-   if(!confirm('¿Eliminar definitivamente esta jornada de tienda?'+(day&&day.status==='closed'?' Se devolverán al stock las cajas descontadas.':'')+' Se eliminarán sus movimientos asociados.'))return;
-   try{const {error}=await sb.rpc('delete_store_day',{p_store_day_id:id});if(error)throw error;await loadAll();await loadStores();await loadHistory();alert('Registro de tienda eliminado.');}
+   if(!confirm('¿Eliminar definitivamente esta jornada de tienda y sus movimientos del historial? El stock no cambiará.'))return;
+   try{const {error}=await sb.rpc('delete_store_day',{p_store_day_id:id});if(error)throw error;await loadStores();await loadHistory();alert('Jornada de tienda y movimientos asociados eliminados. El stock no ha cambiado.');}
    catch(err){alert('No se pudo eliminar la tienda: '+err.message);}
+ }
+ async function deleteMovement(id){
+   if(!confirm('¿Eliminar este movimiento del historial? El stock no cambiará.'))return;
+   try{const {error}=await sb.rpc('delete_movement_record',{p_movement_id:id});if(error)throw error;await loadHistory();alert('Movimiento eliminado del historial. El stock no ha cambiado.');}
+   catch(err){alert('No se pudo eliminar el movimiento: '+err.message);}
  }
  async function submitStoreDay(e){
    e.preventDefault();if(busy)return;
