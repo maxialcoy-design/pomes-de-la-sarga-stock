@@ -54,6 +54,33 @@ jobs:
       - name: Crear proyecto Android
         run: npx cap add android
 
+      - name: Crear icono oficial de Android
+        run: |
+          npm install --no-save sharp
+          node <<'NODE'
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const path = require('path');
+          const source = 'assets/logo/pomes-logo.png';
+          const root = 'android/app/src/main/res';
+          const densities = [
+            ['mdpi', 48], ['hdpi', 72], ['xhdpi', 96],
+            ['xxhdpi', 144], ['xxxhdpi', 192]
+          ];
+          (async () => {
+            if (!fs.existsSync(source)) throw new Error('No se encuentra el logo oficial: ' + source);
+            for (const [density, size] of densities) {
+              const dir = path.join(root, 'mipmap-' + density);
+              fs.mkdirSync(dir, { recursive: true });
+              const output = await sharp(source)
+                .resize(size, size, { fit: 'contain', background: '#ffffff' })
+                .png().toBuffer();
+              fs.writeFileSync(path.join(dir, 'ic_launcher.png'), output);
+              fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), output);
+            }
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+
       - name: Sincronizar aplicación
         run: npx cap sync android
 
