@@ -1,0 +1,70 @@
+name: Build Pomes de la Sarga APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'config.js'
+      - 'manifest.webmanifest'
+      - 'package.json'
+      - 'capacitor.config.json'
+      - '.github/workflows/android-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pomes-android-apk
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Compile Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Configurar Java para Android
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Preparar archivos de la aplicación
+        run: |
+          mkdir -p www
+          cp index.html config.js www/
+          if [ -f manifest.webmanifest ]; then cp manifest.webmanifest www/; fi
+
+      - name: Instalar Capacitor
+        run: |
+          npm install @capacitor/core @capacitor/android
+          npm install --save-dev @capacitor/cli
+
+      - name: Crear proyecto Android
+        run: npx cap add android
+
+      - name: Sincronizar aplicación
+        run: npx cap sync android
+
+      - name: Generar APK de prueba
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Guardar APK para descargar
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pomes-de-la-Sarga-APK-prueba
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
