@@ -54,7 +54,7 @@ jobs:
       - name: Crear proyecto Android
         run: npx cap add android
 
-      - name: Crear icono oficial de Android
+      - name: Crear iconos Android clásicos y adaptativos
         run: |
           npm install --no-save sharp
           node <<'NODE'
@@ -68,16 +68,43 @@ jobs:
             ['xxhdpi', 144], ['xxxhdpi', 192]
           ];
           (async () => {
-            if (!fs.existsSync(source)) throw new Error('No se encuentra el logo oficial: ' + source);
+            if (!fs.existsSync(source)) throw new Error('Falta logo oficial: ' + source);
             for (const [density, size] of densities) {
               const dir = path.join(root, 'mipmap-' + density);
               fs.mkdirSync(dir, { recursive: true });
-              const output = await sharp(source)
+              const classic = await sharp(source)
                 .resize(size, size, { fit: 'contain', background: '#ffffff' })
                 .png().toBuffer();
-              fs.writeFileSync(path.join(dir, 'ic_launcher.png'), output);
-              fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), output);
+              fs.writeFileSync(path.join(dir, 'ic_launcher.png'), classic);
+              fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), classic);
+              // Android 8+ lee el foreground del icono adaptativo.
+              const adaptiveSize = Math.round(size * 108 / 48);
+              const foreground = await sharp(source)
+                .resize(Math.round(adaptiveSize * 0.60), Math.round(adaptiveSize * 0.60),
+                  { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
+                .png().toBuffer();
+              const layer = await sharp({
+                create: { width: adaptiveSize, height: adaptiveSize,
+                  channels: 4, background: { r: 255, g: 255, b: 255, alpha: 0 } }
+              }).composite([{ input: foreground, gravity: 'centre' }]).png().toBuffer();
+              fs.writeFileSync(path.join(dir, 'ic_launcher_foreground.png'), layer);
+              // Evitar que los webp por defecto oculten los nuevos PNG.
+              for (const name of ['ic_launcher.webp','ic_launcher_round.webp','ic_launcher_foreground.webp']) {
+                const file = path.join(dir, name);
+                if (fs.existsSync(file)) fs.unlinkSync(file);
+              }
             }
+            const xmlDir = path.join(root, 'mipmap-anydpi-v26');
+            fs.mkdirSync(xmlDir, { recursive: true });
+            const xml = '<?xml version="1.0" encoding="utf-8"?>\\n'
+              + '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\\n'
+              + '  <background android:drawable="@android:color/white"/>\\n'
+              + '  <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\\n'
+              + '</adaptive-icon>\\n';
+            for (const name of ['ic_launcher.xml','ic_launcher_round.xml']) {
+              fs.writeFileSync(path.join(xmlDir, name), xml.replace(/\\\\n/g, '\\n'));
+            }
+            console.log('Iconos clásicos y adaptativos creados con logo oficial');
           })().catch(err => { console.error(err); process.exit(1); });
           NODE
 
