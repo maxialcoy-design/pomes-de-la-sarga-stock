@@ -1,1 +1,0 @@
-Sube en esta carpeta el logo oficial de Pomes de la Sarga en PNG, preferiblemente con fondo blanco. Nombre recomendado del archivo: pomes-logo.png. Cuando lo subas, avísame para incorporarlo a la pantalla de bienvenida y al icono de Android.
