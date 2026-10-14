@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2f6840">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>Pomes de la Sarga · Stock</title>
+<style>
+:root{--bg:#f7f6f1;--green:#2f6840;--green2:#e8f0e6;--text:#26352b;--muted:#747d75;--line:#e0e4dd;--red:#a84b4b;--shadow:0 5px 18px #233c2810}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:82px}button,input{font:inherit}button{cursor:pointer}.app{max-width:720px;margin:auto;padding:18px 16px 24px}.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:5px 3px 18px}.brand h1{font-size:clamp(21px,5vw,29px);line-height:1.1;margin:0;font-weight:850;letter-spacing:-.6px}.brand p{margin:7px 0 0;color:var(--muted);font-size:13px}.badge{font-size:12px;background:var(--green2);color:var(--green);padding:7px 10px;border-radius:999px;font-weight:750;white-space:nowrap}.panel,.card{background:white;border:1px solid var(--line);border-radius:22px;padding:18px;margin:12px 0;box-shadow:var(--shadow)}.total{background:var(--green);color:white;border-radius:26px;padding:25px;margin-bottom:16px}.total small{opacity:.85;font-weight:750;letter-spacing:.7px}.total strong{display:block;font-size:clamp(40px,11vw,58px);line-height:1.1;margin:9px 0 3px;letter-spacing:-1.5px}.total span{opacity:.9}.sectionTitle{font-size:21px;font-weight:850;margin:8px 2px 12px}.varietyHead{display:flex;align-items:center;gap:10px}.fruitDot{width:13px;height:13px;border-radius:50%;flex:none}.varietyName{font-size:18px;font-weight:850}.stockNumber{margin-left:auto;text-align:right}.stockNumber strong{font-size:23px;display:block}.stockNumber small{color:var(--muted)}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.btn{border:0;border-radius:13px;padding:13px 12px;font-weight:800}.btn:disabled{opacity:.45}.primary{background:var(--green);color:white}.soft{background:var(--green2);color:var(--green)}.danger{background:#faeaea;color:var(--red)}.formRow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.formRow input,.formRow select,input[type=email],input[type=password]{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;color:var(--text)}label{display:block;font-size:13px;font-weight:750;margin:10px 0 5px}.muted{color:var(--muted);font-size:13px}.view{display:none}.view.active{display:block}.bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:7px max(7px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left));box-shadow:0 -4px 18px #233c280c}.bottom button{border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:800;padding:7px 2px;border-radius:12px}.bottom button span{display:block;font-size:20px;margin-bottom:2px}.bottom button.active{background:var(--green2);color:var(--green)}.notice{padding:12px;border-radius:13px;background:#fff4d8;color:#70551b;font-size:13px;margin:12px 0}.hidden{display:none!important}.movement{border-bottom:1px solid var(--line);padding:12px 0}.movement:last-child{border-bottom:0}.movement strong{display:block}.movement small{color:var(--muted)}.loginWrap{max-width:440px;margin:7vh auto}.loginWrap h2{margin-top:0}.error{color:#a32f2f;font-size:13px;margin-top:10px}.success{color:var(--green);font-size:13px;margin-top:10px}.sync{font-size:12px;color:var(--muted);text-align:center;padding:8px}.rowBetween{display:flex;justify-content:space-between;align-items:center;gap:8px}.smallBtn{border:0;background:var(--green2);color:var(--green);font-weight:800;border-radius:10px;padding:9px 11px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./config.js"></script>
+</head>
+<body>
+<div id="loginScreen" class="app loginWrap">
+  <div class="panel">
+    <h1>🍎 Pomes de la Sarga</h1><p class="muted">Control compartido de stock</p>
+    <h2>Entrar</h2>
+    <form id="loginForm">
+      <label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="username" required>
+      <label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" required>
+      <button class="btn primary" style="width:100%;margin-top:14px" type="submit">Entrar</button>
+    </form>
+    <div id="loginMessage" aria-live="polite"></div>
+    <p class="muted">Las cuentas se crean desde el panel privado de Supabase para que solo accedan las personas autorizadas.</p>
+  </div>
+</div>
+<div id="appScreen" class="app hidden">
+  <header class="header"><div class="brand"><h1>🍎 Pomes de la Sarga</h1><p>Control de cámara · 20 kg por caja</p></div><button id="logout" class="smallBtn">Salir</button></header>
+  <div class="rowBetween"><div class="sectionTitle">Stock de cámara</div><span id="connection" class="badge">Conectando…</span></div>
+  <section id="stockView" class="view active">
+    <div class="total"><small>STOCK TOTAL</small><strong id="totalBoxes">0 cajas</strong><span id="totalKg">0 kg</span></div>
+    <div id="stockCards"></div>
+    <div class="panel"><h3>Movimiento manual</h3><p class="muted">Cada caja son 20 kg. Confirma antes de guardar para actualizar el stock compartido.</p>
+      <form id="movementForm">
+        <label for="moveVariety">Variedad</label><select id="moveVariety"></select>
+        <label for="moveKind">Movimiento</label><select id="moveKind"><option value="entrada">Entrada a cámara (+)</option><option value="salida">Salida de cámara (−)</option><option value="correccion">Corrección de stock</option></select>
+        <label for="moveBoxes">Número de cajas enteras</label><input id="moveBoxes" type="number" min="0" step="1" value="1" required>
+        <label for="moveDescription">Nota (opcional)</label><input id="moveDescription" maxlength="160" placeholder="Ej. llegada de proveedor">
+        <button class="btn primary" style="width:100%;margin-top:14px" type="submit">Revisar y confirmar</button>
+      </form><div id="moveMessage" aria-live="polite"></div>
+    </div>
+  </section>
+  <section id="marketsView" class="view"><div class="sectionTitle">Mercados</div><div class="panel"><h3>Mercados programados</h3><p>Miércoles · Benidorm</p><p>Jueves · Cocentaina</p><p>Viernes · Vergel</p><div class="notice">Estamos preparando el registro detallado de cajas llevadas, vueltas y vendidas. Todavía no registres operaciones de mercado aquí.</div></div></section>
+  <section id="storesView" class="view"><div class="sectionTitle">Tienda</div><div class="panel"><h3>Jornadas de tienda</h3><p>Miércoles · Viernes · Domingo</p><div class="notice">Estamos preparando el registro por variedad y la confirmación para descontar ventas de la cámara. Esta sección aún no modifica el stock.</div></div></section>
+  <section id="historyView" class="view"><div class="sectionTitle">Historial compartido</div><div class="panel"><div class="rowBetween"><strong>Últimos movimientos</strong><button id="refreshHistory" class="smallBtn">Actualizar</button></div><div id="historyList"><p class="muted">Cargando…</p></div></div></section>
+  <div class="sync" id="syncStatus">Los datos se guardan en la nube.</div>
+</div>
+<nav id="bottomNav" class="bottom hidden">
+  <button data-view="stock" class="active"><span>📦</span>Stock</button><button data-view="markets"><span>🛒</span>Mercados</button><button data-view="stores"><span>🏪</span>Tienda</button><button data-view="history"><span>📋</span>Historial</button>
+</nav>
+<script>
+(() => {
+ const varieties=['Royal Gala','Delicio','Golden','Fuji verde','Fuji roja'];
+ const colors=['#d94b45','#b84d4d','#e5b936','#5a9a4c','#c94b45'];
+ let sb=null, stock={}, realtime=null, busy=false;
+ const $=id=>document.getElementById(id);
+ const config=window.POMES_CONFIG||{};
+ const ready=!!(window.supabase&&config.supabaseUrl&&config.supabaseAnonKey&&!config.supabaseUrl.includes('PEGA_AQUI')&&!config.supabaseAnonKey.includes('PEGA_AQUI'));
+ $('moveVariety').innerHTML=varieties.map(v=>'<option>'+v+'</option>').join('');
+ function message(id,text,kind='error'){const el=$(id);el.className=kind;el.textContent=text;}
+ function setScreen(logged){$('loginScreen').classList.toggle('hidden',logged);$('appScreen').classList.toggle('hidden',!logged);$('bottomNav').classList.toggle('hidden',!logged);}
+ function setConnection(text,ok=false){$('connection').textContent=text;$('connection').style.background=ok?'#e8f0e6':'#fff4d8';$('connection').style.color=ok?'#2f6840':'#70551b';}
+ async function start(){
+   if(!ready){message('loginMessage','Falta configurar config.js con la URL y la clave publicable de Supabase. No introduzcas claves privadas.');return;}
+   sb=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
+   const {data:{session}}=await sb.auth.getSession();
+   if(session){setScreen(true);await loadAll();subscribe();}
+   else setScreen(false);
+   sb.auth.onAuthStateChange(async (_event,session)=>{if(session){setScreen(true);await loadAll();subscribe();}else{if(realtime){sb.removeChannel(realtime);realtime=null;}setScreen(false);}});
+ }
+ async function loadAll(){
+   setConnection('Sincronizando…');
+   const {data,error}=await sb.from('stock').select('*').order('variety');
+   if(error){setConnection('Error de conexión');message('moveMessage','No se pudo cargar el stock: '+error.message);return;}
+   stock={};(data||[]).forEach(r=>stock[r.variety]=r.boxes);
+   renderStock();await loadHistory();setConnection('Sincronizado',true);$('syncStatus').textContent='Última sincronización: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+ }
+ function renderStock(){
+   const total=varieties.reduce((n,v)=>n+(stock[v]||0),0);
+   $('totalBoxes').textContent=total+' cajas';$('totalKg').textContent=(total*20).toLocaleString('es-ES')+' kg';
+   $('stockCards').innerHTML=varieties.map((v,i)=>'<article class="card"><div class="varietyHead"><span class="fruitDot" style="background:'+colors[i]+'"></span><span class="varietyName">'+v+'</span><div class="stockNumber"><strong>'+(stock[v]||0)+' cajas</strong><small>'+((stock[v]||0)*20).toLocaleString('es-ES')+' kg</small></div></div></article>').join('');
+ }
+ async function log(kind,variety,boxes,description,details={}){
+   const {error}=await sb.from('movements').insert({kind,variety,boxes,description,details});
+   if(error) throw error;
+ }
+ async function submitMovement(e){
+   e.preventDefault();if(busy)return;
+   const variety=$('moveVariety').value,kind=$('moveKind').value,n=Number($('moveBoxes').value),desc=$('moveDescription').value.trim();
+   if(!Number.isInteger(n)||n<0){message('moveMessage','Introduce un número entero de cajas.');return;}
+   const current=stock[variety]||0;
+   let next=kind==='entrada'?current+n:kind==='salida'?current-n:n;
+   if(kind==='salida'&&n>current){message('moveMessage','No puedes sacar '+n+' cajas: solo hay '+current+'.');return;}
+   if(kind==='correccion'&&n<0){message('moveMessage','La corrección no puede ser negativa.');return;}
+   const label=kind==='entrada'?'añadir':kind==='salida'?'retirar':'dejar el stock en';
+   if(!confirm('¿Confirmas '+label+' '+n+' cajas de '+variety+'?'+(kind==='correccion'?' El stock quedará en '+n+' cajas.':'')))return;
+   busy=true;const form=e.target;form.querySelector('button[type=submit]').disabled=true;
+   try{
+     const {error}=await sb.from('stock').update({boxes:next,updated_at:new Date().toISOString()}).eq('variety',variety);
+     if(error)throw error;
+     await log(kind,variety,kind==='salida'?-n:kind==='correccion'?next-current:n,desc||('Stock: '+current+' → '+next),{before:current,after:next});
+     message('moveMessage','Movimiento guardado y sincronizado.', 'success');$('moveDescription').value='';await loadAll();
+   }catch(err){message('moveMessage','No se ha podido guardar: '+err.message);await loadAll();}
+   finally{busy=false;form.querySelector('button[type=submit]').disabled=false;}
+ }
+ async function loadHistory(){
+   const {data,error}=await sb.from('movements').select('*').order('created_at',{ascending:false}).limit(100);
+   if(error){$('historyList').innerHTML='<p class="error">'+error.message+'</p>';return;}
+   $('historyList').innerHTML=(data||[]).length?(data||[]).map(m=>'<div class="movement"><strong>'+escapeHtml(m.description||m.kind)+' · '+escapeHtml(m.variety||'Operación')+'</strong><small>'+new Date(m.created_at).toLocaleString('es-ES')+' · '+(m.boxes>0?'+':'')+m.boxes+' cajas · '+(m.kg||Math.abs(m.boxes)*20)+' kg</small></div>').join(''):'<p class="muted">Todavía no hay movimientos.</p>';
+ }
+ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ function subscribe(){if(realtime)sb.removeChannel(realtime);realtime=sb.channel('pomes-live-stock').on('postgres_changes',{event:'*',schema:'public',table:'stock'},()=>loadAll()).on('postgres_changes',{event:'*',schema:'public',table:'movements'},()=>loadHistory()).subscribe();}
+ $('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!ready){await start();return;}message('loginMessage','Entrando…','success');const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)message('loginMessage','No se ha podido entrar: '+error.message);});
+ $('logout').addEventListener('click',async()=>{if(confirm('¿Quieres cerrar sesión?'))await sb.auth.signOut();});
+ $('movementForm').addEventListener('submit',submitMovement);$('refreshHistory').addEventListener('click',loadHistory);
+ document.querySelectorAll('.bottom button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(btn.dataset.view+'View').classList.add('active');if(btn.dataset.view==='history')loadHistory();}));
+ start();
+})();
+</script>
+</body></html>
